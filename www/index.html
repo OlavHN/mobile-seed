@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" ng-app='mobile'>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"/>
+  <title>Mobile Angular</title>
+  <style>
+    body {
+      background: white;
+    }
+
+    .nav {
+      display:none;
+    }
+
+    .main-container {
+      position:relative;
+    }
+
+    .main-container > * {
+      position:absolute;
+      width:100%;
+    }
+
+    .forward-enter-setup, .forward-leave-setup {
+      -webkit-transition:all ease 0.3s;
+      -moz-transition: all ease 0.3s;
+      transition: all ease 0.3s;
+    }
+
+    .back-enter-setup, .back-leave-setup {
+      -webkit-transition:all ease 0.3s;
+      -moz-transition: all ease 0.3s;
+      transition: all ease 0.3s;
+    }
+
+    @media (min-width: 600px) {
+      .main-container {
+        left:200px;
+      }
+
+      .nav {
+        display: block;
+        position:fixed;
+        left:0;
+        top:0;
+        bottom:0;
+        width:200px;
+        background:blue;
+        z-index: 10;
+      }
+
+      .forward-enter-setup {
+        opacity:0;
+      }
+
+      .forward-enter-setup.forward-enter-start {
+        opacity:1;
+      }
+
+      .forward-leave-setup {
+      opacity:1;
+      }
+      .forward-leave-setup.forward-leave-start {
+      opacity:0;
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      .forward-enter-setup {
+        left:100%;
+      }
+
+      .forward-enter-setup.forward-enter-start {
+        left:0;
+      }
+
+      .forward-leave-setup { }
+      .forward-leave-setup.forward-leave-start {
+        left:-100%;
+      }
+
+      .back-enter-setup {
+        left:-100%;
+      }
+
+      .back-enter-setup.back-enter-start {
+        left:0;
+      }
+
+      .back-leave-setup { }
+      .back-leave-setup.back-leave-start {
+        left:100%;
+      }
+    }
+
+
+  </style>
+  <!-- Requires angular 1.1.5
+  <script src='lib/angular/angular.js'></script>-->
+  <script src='lib/angular.js'></script>
+  <script>
+    angular.module('mobile', [], function($routeProvider, $locationProvider) {
+      var menu = {
+        templateUrl: 'views/menu.html',
+        controller: 'MenuCntr'
+      };
+
+      var main = {
+        templateUrl: 'views/one.html',
+        controller: 'OneCntr'
+      };
+
+      $routeProvider
+      .when('/', window.innerWidth > 600 ? main : menu)
+      .when('/menu', menu)
+      .when('/one', main)
+      .when('/two', {
+        templateUrl: 'views/two.html',
+        controller: 'TwoCntr'
+      });
+
+      $locationProvider.html5Mode(true);
+    })
+    .factory('cache', function($cacheFactory, $q) {
+      var db;
+      var req = indexedDB.open("indexedDbCache");
+      req.onupgradeneeded = function(evt) {
+        db = evt.target.result;
+         var store = db.createObjectStore('httpCache', { keyPath: 'url' });
+      }
+      req.onsuccess = function(evt) {
+        db = evt.target.result;
+      };
+
+      return angular.extend($cacheFactory('indexedDbCache', {}), {
+        get: function(key) {
+          var deferred = $q.defer();
+
+          db.transaction('customers')
+            .objectStore('customers')
+            .get(key)
+            .onsuccess = function(evt) {
+            deferred.resolve(evt.target.result);
+          }
+
+          return deferred.promise;
+        },
+        put: function(key, value) {},
+        remove: function(key) {},
+        removeAll: function() {}
+      });
+    })
+    .controller('MenuCntr', function($scope, $routeParams) {
+      $scope.slide = function() {
+        if($routeParams.back)
+          return 'back';
+
+        return 'forward';
+      }
+      $scope.world = 'WORLD!';
+    })
+    .controller('OneCntr', function($scope, $http, cache) {
+      console.log(cache);
+      $scope.name = 'ONE';
+      $http.get('/two', {cache: cache})
+    })
+    .controller('TwoCntr', function($scope) {
+      $scope.cookies = 'HERE!!';
+    });
+  </script>
+</head>
+
+<body>
+  <div ng-controller='MenuCntr'>
+    <div
+      class='nav'
+      ng-include="'/views/menu.html'">
+    </div>
+
+    <div
+      class='main-container'
+      ng-view
+      ng-animate="slide()">
+    </div>
+  </div>
+</body>
+</html>
