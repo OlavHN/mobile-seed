@@ -1,0 +1,22 @@
+<style>
+  @media screen and (max-width: 767px) {
+    body {
+      padding-top: 64px;
+    }
+  }
+</style>
+
+<div class="row">
+  <div class="navbar navbar-fixed-top visible-phone">
+    <a href="#" class="navbar-brand">Menu</a>
+  </div>
+  <div class="col col-lg-12">
+  <ul class="nav nav-stacked" ng-repeat="item in items">
+    <li
+      ng-click="select(item)"
+      ng-class="{active: item == selected}">
+      <a href=''>{{item.name}}</a>
+    </li>
+  </ul>
+  </div>
+</div>

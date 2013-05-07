@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" ng-app='mobile'>
+<head>
+  <meta charset="utf-8">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"/>
+  <title>Mobile Angular</title>
+  <!-- Boostrap 3.0 preview -->
+  <link href="/lib/bootstrap.css" rel="stylesheet" />
+  <style>
+    body {
+      background: white;
+    }
+
+    a:focus, a:active {
+      outline: 0;
+      background-color:#eeeeee;
+    }
+
+    active {
+      outline: 0;
+      background-color:#eeeeee;
+    }
+
+    .menu {
+      display:none;
+    }
+
+    .main-container {
+      position:relative;
+    }
+
+    .main-container > * {
+      position:absolute;
+      width:100%;
+    }
+
+    @media (min-width: 768px) {
+      .main-container {
+        left:200px;
+      }
+
+      .menu {
+        display: block;
+        position:fixed;
+        left:0;
+        top:0;
+        bottom:0;
+        width:200px;
+        background:#eeeeee;
+        z-index: 10;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .forward-enter-setup, .forward-leave-setup {
+        -webkit-transition: all ease-in 0.3s;
+        -moz-transition: all ease-in 0.3s;
+        transition: all ease-in 0.3s;
+      }
+
+      .back-enter-setup, .back-leave-setup {
+        -webkit-transition: all ease-out 0.3s;
+        -moz-transition: all ease-out 0.3s;
+        transition: all ease-out 0.3s;
+      }
+
+      .forward-enter-setup {
+        left:100%;
+      }
+
+      .forward-enter-setup.forward-enter-start {
+        left:0;
+      }
+
+      .forward-leave-setup {
+        left:0;
+      }
+      .forward-leave-setup.forward-leave-start {
+        left:-100%;
+      }
+
+      .back-enter-setup {
+        left:-100%;
+      }
+
+      .back-enter-setup.back-enter-start {
+        left:0;
+      }
+
+      .back-leave-setup {
+        left:0;
+      }
+
+      .back-leave-setup.back-leave-start {
+        left:100%;
+      }
+    }
+  </style>
+  <!--<script src="/lib/bootstrap.js"></script>-->
+  <!-- Angular 1.1.5 preview -->
+  <script src='lib/angular.js'></script>
+  <script src='lib/angular-mobile.js'></script>
+  <script>
+    angular.module('mobile', ['ngMobile'], function($routeProvider, $locationProvider) {
+      var menu = {
+        templateUrl: 'views/menu.html',
+        controller: 'MenuCntr'
+      };
+
+      var main = {
+        templateUrl: 'views/one.html',
+        controller: 'OneCntr'
+      };
+
+      $routeProvider
+      .when('/', window.innerWidth > 767 ? main : menu)
+      .when('/menu', menu)
+      .when('/one', main)
+      .when('/two', {
+        templateUrl: 'views/two.html',
+        controller: 'TwoCntr'
+      });
+
+      $locationProvider.html5Mode(true);
+    })
+    .factory('offlineCache', function($cacheFactory, $q) {
+      var prefix = 'httpCache';
+
+      return angular.extend($cacheFactory('offlineCache', {}), {
+        get: function(key) {
+          return localStorage.getItem(prefix + key);
+        },
+        put: function(key, value) {
+          localStorage.setItem(prefix + key, value);
+        },
+        remove: function(key) {
+          localStorage.removeItem(prefix + key);
+        },
+        removeAll: function() {
+          localstorage.clear();
+        }
+      });
+    })
+    .controller('MenuCntr', function($scope, $routeParams, $location) {
+      $scope.slide = function() {
+        console.log($routeParams);
+        if($routeParams.back)
+          return 'back';
+
+        return 'forward';
+      }
+
+      $scope.items = [
+        {name: 'Main', url: '/one'},
+        {name: 'Two', url: '/two'}
+      ];
+
+      $scope.selected;
+
+      $scope.select = function(item) {
+        $scope.selected = item;
+        $location.path(item.url).search('back', false);
+      }
+    })
+    .controller('OneCntr', function($scope, $http, offlineCache) {
+      $scope.name = 'ONE';
+
+      $http.get('/two', {cache: offlineCache});
+    })
+    .controller('TwoCntr', function($scope) {
+      $scope.cookies = 'HERE!!';
+    });
+  </script>
+</head>
+
+<body>
+  <div ng-controller='MenuCntr'>
+    <div
+      class='menu'
+      ng-include="'/views/menu.html'">
+    </div>
+
+    <div
+      class='main-container'
+      ng-view
+      ng-animate="slide()">
+    </div>
+  </div>
+</body>
+</html>
