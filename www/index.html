@@ -2,18 +2,24 @@
 <html lang="en" ng-app='mobile'>
 <head>
   <meta charset="utf-8">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"/>
+  <title>Mobile Angular</title>
   <!-- Boostrap 3.0 preview -->
   <link href="/lib/bootstrap.css" rel="stylesheet" />
-  <script src="/lib/bootstrap.js"></script>
-  <title>Mobile Angular</title>
   <style>
     body {
       background: white;
     }
 
-    a, button, a:focus {
+    a:focus, a:active {
       outline: 0;
+      background-color:#eeeeee;
+    }
+
+    active {
+      outline: 0;
+      background-color:#eeeeee;
     }
 
     .menu {
@@ -41,22 +47,22 @@
         top:0;
         bottom:0;
         width:200px;
-        background:blue;
+        background:#eeeeee;
         z-index: 10;
       }
     }
 
     @media (max-width: 767px) {
       .forward-enter-setup, .forward-leave-setup {
-        -webkit-transition: all ease 0.3s;
-        -moz-transition: all ease 0.3s;
-        transition: all ease 0.3s;
+        -webkit-transition: all ease-in 0.3s;
+        -moz-transition: all ease-in 0.3s;
+        transition: all ease-in 0.3s;
       }
 
       .back-enter-setup, .back-leave-setup {
-        -webkit-transition: all ease 0.3s;
-        -moz-transition: all ease 0.3s;
-        transition: all ease 0.3s;
+        -webkit-transition: all ease-out 0.3s;
+        -moz-transition: all ease-out 0.3s;
+        transition: all ease-out 0.3s;
       }
 
       .forward-enter-setup {
@@ -90,14 +96,13 @@
         left:100%;
       }
     }
-
-
   </style>
+  <!--<script src="/lib/bootstrap.js"></script>-->
   <!-- Angular 1.1.5 preview -->
   <script src='lib/angular.js'></script>
   <script src='lib/angular-mobile.js'></script>
   <script>
-    angular.module('mobile', [], function($routeProvider, $locationProvider) {
+    angular.module('mobile', ['ngMobile'], function($routeProvider, $locationProvider) {
       var menu = {
         templateUrl: 'views/menu.html',
         controller: 'MenuCntr'
@@ -124,7 +129,6 @@
 
       return angular.extend($cacheFactory('offlineCache', {}), {
         get: function(key) {
-
           return localStorage.getItem(prefix + key);
         },
         put: function(key, value) {
@@ -138,14 +142,26 @@
         }
       });
     })
-    .controller('MenuCntr', function($scope, $routeParams) {
+    .controller('MenuCntr', function($scope, $routeParams, $location) {
       $scope.slide = function() {
+        console.log($routeParams);
         if($routeParams.back)
           return 'back';
 
         return 'forward';
       }
-      $scope.world = 'WORLD!';
+
+      $scope.items = [
+        {name: 'Main', url: '/one'},
+        {name: 'Two', url: '/two'}
+      ];
+
+      $scope.selected;
+
+      $scope.select = function(item) {
+        $scope.selected = item;
+        $location.path(item.url).search('back', false);
+      }
     })
     .controller('OneCntr', function($scope, $http, offlineCache) {
       $scope.name = 'ONE';

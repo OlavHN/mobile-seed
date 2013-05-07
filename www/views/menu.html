@@ -11,9 +11,12 @@
     <a href="#" class="navbar-brand">Menu</a>
   </div>
   <div class="col col-lg-12">
-  <ul class="nav nav-pills nav-stacked">
-    <li><a href='/one'>One</a></li>
-    <li><a href='/two'>Two</a></li>
+  <ul class="nav nav-stacked" ng-repeat="item in items">
+    <li
+      ng-click="select(item)"
+      ng-class="{active: item == selected}">
+      <a href=''>{{item.name}}</a>
+    </li>
   </ul>
   </div>
 </div>
