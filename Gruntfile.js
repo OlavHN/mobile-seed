@@ -7,6 +7,19 @@ module.exports = function(grunt) {
           "www/lib/bootstrap.css": "bootstrap/less/bootstrap.less"
         }
       }
+    },
+    manifest: {
+      generate: {
+        options: {
+          basePath: "./www"
+        },
+        src: [
+          "lib/*",
+          "views/*.html",
+          "fonts/*"
+        ],
+        dest: "www/manifest.appcache"
+      }
     }
   });
 
@@ -33,7 +46,9 @@ module.exports = function(grunt) {
     });
   });
 
+  grunt.loadNpmTasks('grunt-manifest');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-update-submodules');
-  grunt.registerTask('default', ['update_submodules', 'less', 'downloadAngular', 'installAngular']);
+
+  grunt.registerTask('default', ['update_submodules', 'less', 'downloadAngular', 'installAngular', 'manifest']);
 }

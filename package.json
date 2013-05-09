@@ -8,6 +8,7 @@
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-update-submodules": "~0.2.0",
-    "grunt-contrib-less": "~0.5.1"
+    "grunt-contrib-less": "~0.5.1",
+    "grunt-manifest": "~0.4.0"
   }
 }
