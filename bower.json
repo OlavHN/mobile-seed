@@ -1,6 +1,5 @@
 {
   "name": "mobile-angular",
   "dependencies": {
-    "angular": "1.1.5"
   }
 }
