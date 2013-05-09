@@ -11,15 +11,27 @@
     body {
       background: white;
     }
-
-    a:focus, a:active {
+    /*
+    .nav > li > a:focus,
+    .nav > li > a:active {
       outline: 0;
-      background-color:#eeeeee;
+      background-color:#dddddd;
+    }*/
+
+    .active {
+      -webkit-animation-duration: 0.4s;
+      -webkit-animation-name: cookies;
+      outline: 0;
+      background-color:#dddddd;
     }
 
-    active {
-      outline: 0;
-      background-color:#eeeeee;
+    @-webkit-keyframes cookies {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
     }
 
     .menu {
@@ -36,6 +48,7 @@
     }
 
     @media (min-width: 768px) {
+
       .main-container {
         left:200px;
       }
@@ -53,46 +66,46 @@
     }
 
     @media (max-width: 767px) {
-      .forward-enter-setup, .forward-leave-setup {
+      .forward-enter, .forward-leave {
         -webkit-transition: all ease-in 0.3s;
         -moz-transition: all ease-in 0.3s;
         transition: all ease-in 0.3s;
       }
 
-      .back-enter-setup, .back-leave-setup {
+      .back-enter, .back-leave {
         -webkit-transition: all ease-out 0.3s;
         -moz-transition: all ease-out 0.3s;
         transition: all ease-out 0.3s;
       }
 
-      .forward-enter-setup {
+      .forward-enter {
         left:100%;
       }
 
-      .forward-enter-setup.forward-enter-start {
+      .forward-enter.forward-enter-active {
         left:0;
       }
 
-      .forward-leave-setup {
+      .forward-leave {
         left:0;
       }
-      .forward-leave-setup.forward-leave-start {
+      .forward-leave.forward-leave-active {
         left:-100%;
       }
 
-      .back-enter-setup {
+      .back-enter {
         left:-100%;
       }
 
-      .back-enter-setup.back-enter-start {
+      .back-enter.back-enter-active {
         left:0;
       }
 
-      .back-leave-setup {
+      .back-leave {
         left:0;
       }
 
-      .back-leave-setup.back-leave-start {
+      .back-leave.back-leave-active {
         left:100%;
       }
     }
@@ -142,9 +155,14 @@
         }
       });
     })
-    .controller('MenuCntr', function($scope, $routeParams, $location) {
+    .run(function($http, offlineCache) {
+      // Load templates in cache on start
+      $http.get('/one', {cache: offlineCache});
+      $http.get('/two', {cache: offlineCache});
+    })
+    .controller('MenuCntr', function($scope, $routeParams, $location, $rootScope) {
+      // Menu specific
       $scope.slide = function() {
-        console.log($routeParams);
         if($routeParams.back)
           return 'back';
 
@@ -156,17 +174,19 @@
         {name: 'Two', url: '/two'}
       ];
 
-      $scope.selected;
+      // Persisting key click state
 
-      $scope.select = function(item) {
+      $rootScope.select = function(item) {
         $scope.selected = item;
-        $location.path(item.url).search('back', false);
+      }
+
+      $rootScope.go = function(url, back, item) {
+        $scope.selected = item;
+        $location.path(url).search('back', back);
       }
     })
     .controller('OneCntr', function($scope, $http, offlineCache) {
       $scope.name = 'ONE';
-
-      $http.get('/two', {cache: offlineCache});
     })
     .controller('TwoCntr', function($scope) {
       $scope.cookies = 'HERE!!';
